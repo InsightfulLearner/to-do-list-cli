@@ -40,21 +40,24 @@ def add_to_list():
     """
     Prompts the user to enter the name of the task they would like to add.
     Any additional whitespace is removed with the .strip()
+    Normalised task priority to lowercase.
 
     Returns:
-    str: The name of the task as entered by the user.
+    dict: The name of the task and priority as entered by the user.
     """
-
+    task_to_add = {}
     while True:
-        task_to_add = input("Enter name of task: ").strip()
-        if task_to_add:
+        task_name = input("Enter name of task: ").strip()
+        task_priority = input("Enter task priority, low, medium, high or critical: ").strip().lower()
+        if task_name and task_priority == "low":
+            task_to_add = {"Name": task_name, "Priority": task_priority}
             return task_to_add
         else: 
             print("Task name cannot be empty, please enter a valid task")
     
 
 
-def remove_from_list(list_of_tasks):
+def remove_from_list(tasks_list):
     """
     Prompts the user for the task they would like to remove from the list of tasks.
 
@@ -64,16 +67,24 @@ def remove_from_list(list_of_tasks):
     Returns:
         None: The function modifies the list in place.
     """
-
+    new_task_list = []
     task_to_remove = input("Please enter the name of the task you would like to remove: ").strip()
-    if task_to_remove in list_of_tasks:
-        list_of_tasks.remove(task_to_remove)
-        print(f"Task '{task_to_remove}' has been removed")
-    else:
-        print(f"Task '{task_to_remove}' not found in the list")
+    found = False
+    # Iterate through each element in the list
+    # 
+    for task in tasks_list:
+        if task["Name"] != task_to_remove:
+            new_task_list.append(task)
+        else: 
+            print(f"Removed {task_to_remove} - Priority {task["Priority"]} from the list")
+            found = True
+    if not found:
+        print(f"Unable to find {task_to_remove} in the list")
+    tasks_list.clear()
+    tasks_list.extend(new_task_list)
+            
 
-
-def view_tasks(list_of_tasks):
+def view_tasks(tasks_list):
     """
     Displays the tasks in the provided list line by line.
 
@@ -86,15 +97,15 @@ def view_tasks(list_of_tasks):
         None
     """
 
-    if list_of_tasks:
-        for task in list_of_tasks:
+    if tasks_list:
+        for task in tasks_list:
             print(task)
     else:
         print("The to-do list is empty")
 
 
 def handle_user_selection(user_selection, list):
-            # Handles the relevant action based on the users selection
+        # Handles the relevant action based on the users selection
         match user_selection:
             case 1:
                 task_to_add = add_to_list()
