@@ -25,8 +25,8 @@ Copy code
 python todo.py
 Follow the prompts in the command line to manage your tasks.
 
-Contributing
+## Contributing
 Contributions are welcome! Feel free to open an issue or submit a pull request.
 
-License
+## License
 This project is licensed under the MIT License. For licensing details, please refer to the LICENSE file.
