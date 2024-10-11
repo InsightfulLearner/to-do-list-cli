@@ -19,6 +19,7 @@ def show_menu():
     """
 
     while True:
+
         try:
             user_input = int(input( "Press 1 to add a task\n"
                                     "Press 2 to remove a task \n"
@@ -37,21 +38,11 @@ def show_menu():
 
 
 def generate_task(task_name, task_priority):
-        if task_name and task_priority.lower() == "low":
-            task_to_add = {"Name": task_name, "Priority": task_priority}
-            return task_to_add
-        elif task_name and task_priority.lower() == "medium":
-            task_to_add = {"Name": task_name, "Priority": task_priority}
-            return task_to_add
-        elif task_name and task_priority.lower() == "high":
-            task_to_add = {"Name": task_name, "Priority": task_priority}
-            return task_to_add
-        elif task_name and task_priority.lower() == "critical":
-            task_to_add = {"Name": task_name, "Priority": task_priority}
-            return task_to_add
+        if task_priority.lower() in {"low", "medium", "high", "critical"}:
+            return {"Name": task_name, "Priority": task_priority}
 
 
-def add_to_list():
+def add_to_list() -> dict:
     """
     Prompts the user to enter the name of the task they would like to add.
     Any additional whitespace is removed with the .strip()
@@ -70,18 +61,15 @@ def add_to_list():
             continue
 
         task_priority = input("Enter task priority: Low, Medium, "
-                              "High or Critical: ").strip().capitalize()
-        if task_priority != ("Low" or "Medium" or "High" or "Critical"):
+                              "High or Critical: ").strip().lower()
+        if task_priority not in {"low", "medium", "high", "critical"}:
             print("Invalid priority entered")
             continue
+        task_priority_capitalized = task_priority.capitalize()
 
-        task_to_add = generate_task(task_name, task_priority)
-
-        return task_to_add
+        return generate_task(task_name, task_priority_capitalized)
 
     
-
-
 def remove_from_list(tasks_list):
     """
     Prompts the user for the task they would like to remove from the list of tasks.
@@ -108,8 +96,8 @@ def remove_from_list(tasks_list):
     if not found:
         print(f"Unable to find '{task_to_remove}' in the list")
 
-    tasks_list.clear() # Clear list
-    tasks_list.extend(new_task_list) # Add new list 
+    tasks_list[:] = new_task_list # Clear and extend list
+    
             
 
 def view_tasks(tasks_list):
@@ -132,16 +120,16 @@ def view_tasks(tasks_list):
         print("The to-do list is empty")
 
 
-def handle_user_selection(user_selection, list):
+def handle_user_selection(user_selection, task_list):
         # Handles the relevant action based on the users selection
         match user_selection:
             case 1:
                 task_to_add = add_to_list()
-                list.append(task_to_add)            
+                task_list.append(task_to_add)            
             case 2:
-                remove_from_list(list)
+                remove_from_list(task_list)
             case 3:
-                view_tasks(list)
+                view_tasks(task_list)
                 time.sleep(3)
             case 4:
                 sys.exit()
@@ -152,6 +140,7 @@ def main():
 
     # Loops the menu until the user enters the input to exit (4)
     while True:
+
         print("To-do list")
         user_input = show_menu() # Shows menu to user, returns their choice as int
         handle_user_selection(user_input, list_of_tasks)
