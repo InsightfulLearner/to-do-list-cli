@@ -36,6 +36,21 @@ def show_menu():
     return user_input
 
 
+def generate_task(task_name, task_priority):
+        if task_name and task_priority.lower() == "low":
+            task_to_add = {"Name": task_name, "Priority": task_priority}
+            return task_to_add
+        elif task_name and task_priority.lower() == "medium":
+            task_to_add = {"Name": task_name, "Priority": task_priority}
+            return task_to_add
+        elif task_name and task_priority.lower() == "high":
+            task_to_add = {"Name": task_name, "Priority": task_priority}
+            return task_to_add
+        elif task_name and task_priority.lower() == "critical":
+            task_to_add = {"Name": task_name, "Priority": task_priority}
+            return task_to_add
+
+
 def add_to_list():
     """
     Prompts the user to enter the name of the task they would like to add.
@@ -47,13 +62,23 @@ def add_to_list():
     """
     task_to_add = {}
     while True:
+        
         task_name = input("Enter name of task: ").strip()
-        task_priority = input("Enter task priority, low, medium, high or critical: ").strip().lower()
-        if task_name and task_priority == "low":
-            task_to_add = {"Name": task_name, "Priority": task_priority}
-            return task_to_add
-        else: 
-            print("Task name cannot be empty, please enter a valid task")
+
+        if task_name == "":
+            print("No task name entered")
+            continue
+
+        task_priority = input("Enter task priority: Low, Medium, "
+                              "High or Critical: ").strip().capitalize()
+        if task_priority != ("Low" or "Medium" or "High" or "Critical"):
+            print("Invalid priority entered")
+            continue
+
+        task_to_add = generate_task(task_name, task_priority)
+
+        return task_to_add
+
     
 
 
@@ -67,21 +92,24 @@ def remove_from_list(tasks_list):
     Returns:
         None: The function modifies the list in place.
     """
-    new_task_list = []
+    new_task_list = [] # New list to expand to the old list after iteration
     task_to_remove = input("Please enter the name of the task you would like to remove: ").strip()
-    found = False
+    found = False # Flag to track if we do not find a task, to show user a message
+
     # Iterate through each element in the list
-    # 
+    # If users take is not a match, we add the exisiting elements to the new list
     for task in tasks_list:
         if task["Name"] != task_to_remove:
             new_task_list.append(task)
         else: 
             print(f"Removed {task_to_remove} - Priority {task["Priority"]} from the list")
-            found = True
+            found = True # Set flag to true if we find a task to remove
+
     if not found:
-        print(f"Unable to find {task_to_remove} in the list")
-    tasks_list.clear()
-    tasks_list.extend(new_task_list)
+        print(f"Unable to find '{task_to_remove}' in the list")
+
+    tasks_list.clear() # Clear list
+    tasks_list.extend(new_task_list) # Add new list 
             
 
 def view_tasks(tasks_list):
@@ -99,7 +127,7 @@ def view_tasks(tasks_list):
 
     if tasks_list:
         for task in tasks_list:
-            print(task)
+            print(f"Task: {task["Name"]} - Priorioty: {task["Priority"]}")
     else:
         print("The to-do list is empty")
 
