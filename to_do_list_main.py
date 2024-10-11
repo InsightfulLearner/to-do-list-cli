@@ -5,6 +5,27 @@ You can add, remove and view the list
 
 import sys
 import time
+import json
+import os 
+
+try:
+    with open('tasks.json', 'r') as file:
+        tasks_data = json.load(file)
+        # Ensure it's a list
+        if not isinstance(tasks_data, list):
+            print("Loaded data is not a list. Initializing an empty task list.")
+            tasks_data = []
+except FileNotFoundError:
+    print("The file does not exist")
+    tasks_data = []
+except json.JSONDecodeError:
+    print("Error decoding JSON")
+    tasks_data = []
+
+
+def store_task_in_file(tasks_data):
+    with open("tasks.json", "w") as file:
+        json.dump(tasks_data, file, indent = 4)
 
 
 def show_menu():
@@ -37,21 +58,16 @@ def show_menu():
     return user_input
 
 
-def generate_task(task_name, task_priority):
-        if task_priority.lower() in {"low", "medium", "high", "critical"}:
-            return {"Name": task_name, "Priority": task_priority}
-
-
-def add_to_list() -> dict:
+def add_to_list() -> None:
     """
     Prompts the user to enter the name of the task they would like to add.
     Any additional whitespace is removed with the .strip()
     Normalised task priority to lowercase.
 
     Returns:
-    dict: The name of the task and priority as entered by the user.
+        None
     """
-    task_to_add = {}
+
     while True:
         
         task_name = input("Enter name of task: ").strip()
@@ -62,15 +78,19 @@ def add_to_list() -> dict:
 
         task_priority = input("Enter task priority: Low, Medium, "
                               "High or Critical: ").strip().lower()
+        
         if task_priority not in {"low", "medium", "high", "critical"}:
             print("Invalid priority entered")
             continue
-        task_priority_capitalized = task_priority.capitalize()
 
-        return generate_task(task_name, task_priority_capitalized)
+        task_priority_capitalized = task_priority.capitalize()
+        file_to_store = {"Name": task_name, "Priority":task_priority_capitalized}
+        tasks_data.append(file_to_store)
+        store_task_in_file(tasks_data)
+        break
 
     
-def remove_from_list(tasks_list):
+def remove_from_list():
     """
     Prompts the user for the task they would like to remove from the list of tasks.
 
@@ -80,27 +100,19 @@ def remove_from_list(tasks_list):
     Returns:
         None: The function modifies the list in place.
     """
-    new_task_list = [] # New list to expand to the old list after iteration
+    global tasks_data
     task_to_remove = input("Please enter the name of the task you would like to remove: ").strip()
-    found = False # Flag to track if we do not find a task, to show user a message
+    new_task_list = [task for task in tasks_data if task["Name"] != task_to_remove]
 
-    # Iterate through each element in the list
-    # If users take is not a match, we add the exisiting elements to the new list
-    for task in tasks_list:
-        if task["Name"] != task_to_remove:
-            new_task_list.append(task)
-        else: 
-            print(f"Removed {task_to_remove} - Priority {task["Priority"]} from the list")
-            found = True # Set flag to true if we find a task to remove
-
-    if not found:
-        print(f"Unable to find '{task_to_remove}' in the list")
-
-    tasks_list[:] = new_task_list # Clear and extend list
+    if len (new_task_list) < len(tasks_data):
+        print(f"Removed {task_to_remove} from task list")
+        tasks_data = new_task_list
+        store_task_in_file(tasks_data)
+    else:
+        print(f"Unable to find {task_to_remove} in the list")
     
             
-
-def view_tasks(tasks_list):
+def view_tasks():
     """
     Displays the tasks in the provided list line by line.
 
@@ -112,24 +124,19 @@ def view_tasks(tasks_list):
     Returns:
         None
     """
-
-    if tasks_list:
-        for task in tasks_list:
-            print(f"Task: {task["Name"]} - Priorioty: {task["Priority"]}")
-    else:
-        print("The to-do list is empty")
+    for task in tasks_data:
+        print(f"Task name: {task['Name']} - Priority: {task['Priority']}")
 
 
 def handle_user_selection(user_selection, task_list):
         # Handles the relevant action based on the users selection
         match user_selection:
             case 1:
-                task_to_add = add_to_list()
-                task_list.append(task_to_add)            
+                add_to_list()           
             case 2:
-                remove_from_list(task_list)
+                remove_from_list()
             case 3:
-                view_tasks(task_list)
+                view_tasks()
                 time.sleep(3)
             case 4:
                 sys.exit()
